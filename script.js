@@ -713,3 +713,78 @@ window.addEventListener('keydown', function(e) {
         toggleFullscreen();
     }
 })
+
+// --- Função para Interpretar o Texto NumPy ---
+
+function loadPolygonsFromPython() {
+    const inputArea = document.getElementById('python-input');
+    const inputValue = inputArea.value;
+
+    if (!inputValue.trim()) {
+        alert("Por favor, cole o código NumPy na área de texto.");
+        return;
+    }
+
+    try {
+        const newMasterPoints = [];
+        
+        // 1. Separar os blocos por "np.array"
+        // O formato esperado é: [np.array([[x,y], [x,y]]), np.array(...)]
+        const parts = inputValue.split('np.array');
+
+        // Ignoramos a primeira parte se ela for apenas o início da lista "["
+        for (let i = 1; i < parts.length; i++) {
+            const chunk = parts[i];
+            const polygon = [];
+
+            // 2. Regex para encontrar pares de coordenadas [x, y]
+            // Procura por colchetes contendo dígitos, vírgula, dígitos
+            const coordRegex = /\[\s*(\d+)\s*,\s*(\d+)\s*\]/g;
+            let match;
+
+            while ((match = coordRegex.exec(chunk)) !== null) {
+                const x = parseInt(match[1]);
+                const y = parseInt(match[2]);
+                polygon.push([x, y]);
+            }
+
+            if (polygon.length > 0) {
+                newMasterPoints.push(polygon);
+            }
+        }
+
+        // 3. Atualizar o Estado do Canvas
+        if (newMasterPoints.length > 0) {
+            // Limpar estado atual
+            points = []; 
+            masterPoints = newMasterPoints;
+            
+            // Recalcular cores (para garantir que cada novo polígono tenha uma cor)
+            masterColors = masterPoints.map((_, index) => {
+                return color_choices[index % color_choices.length];
+            });
+
+            // Redesenhar tudo
+            drawAllPolygons(offScreenCtx);
+            blitCachedCanvas();
+            
+            // Atualizar os outputs de texto originais para garantir sincronia
+            rewritePoints();
+            
+            alert(`Carregados ${newMasterPoints.length} polígono(s) com sucesso! Agora você pode editá-los.`);
+        } else {
+            alert("Nenhum polígono válido encontrado no texto. Verifique o formato.");
+        }
+
+    } catch (e) {
+        console.error(e);
+        alert("Erro ao processar o texto. Verifique se o formato está correto.");
+    }
+}
+
+// --- Adicionar o Listener ao Botão ---
+
+document.getElementById('loadPythonButton').addEventListener('click', function(e) {
+    e.preventDefault();
+    loadPolygonsFromPython();
+});
