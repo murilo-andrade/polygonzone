@@ -721,7 +721,7 @@ function loadPolygonsFromPython() {
     const inputValue = inputArea.value;
 
     if (!inputValue.trim()) {
-        alert("Por favor, cole o código NumPy na área de texto.");
+        alert("Please paste your NumPy code in the text area.");
         return;
     }
 
@@ -771,14 +771,14 @@ function loadPolygonsFromPython() {
             // Atualizar os outputs de texto originais para garantir sincronia
             rewritePoints();
             
-            alert(`Carregados ${newMasterPoints.length} polígono(s) com sucesso! Agora você pode editá-los.`);
+            alert(`Loaded ${newMasterPoints.length} polygon(s) successfully! You can now edit them.`);
         } else {
-            alert("Nenhum polígono válido encontrado no texto. Verifique o formato.");
+            alert("No valid polygons found in the text. Please check the format.");
         }
 
     } catch (e) {
         console.error(e);
-        alert("Erro ao processar o texto. Verifique se o formato está correto.");
+        alert("Error processing the text. Please check if the format is correct.");
     }
 }
 
